@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Seamless Execution – Leveraging the Power of the Standards Value Chain</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+  <style>
+    :root{
+      --primary:#492661;        /* BSJ Purple */
+      --secondary:#fbaf40;      /* BSJ Gold */
+      --bg:#ffffff;             /* White theme background */
+      --card:#f9f9fb;           /* Light card */
+      --text:#111111;
+      --text-dim:#555a66;
+      --border:#e1e1e6;
+      --shadow:0 8px 30px rgba(0,0,0,.08);
+      /* Chart heights confined to containers */
+      --chartH: clamp(140px, 22vh, 200px);
+      --chartH-compact: clamp(110px, 18vh, 160px);
+      --maxRowW: 1140px; /* content width */
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{ margin:0; font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial; color:var(--text); background:var(--bg); overflow:hidden; }
+
+    /* Header */
+    header{ position:fixed; inset:0 0 auto 0; height:64px; display:flex; align-items:center; gap:12px; padding:0 20px; background:#fff; border-bottom:3px solid var(--secondary); z-index:10; color:var(--primary); }
+    header img{height:40px; width:auto; object-fit:contain; background:#fff}
+    header .title{font-weight:700; letter-spacing:.2px; color:var(--primary)}
+    header .badge{margin-left:auto; font-size:12px; color:var(--text-dim)}
+
+    /* Deck */
+    .deck{ position:fixed; inset:64px 0 0 0; display:flex; align-items:center; justify-content:center; }
+    .slide{ position:absolute; width:min(1200px,92vw); height:min(680px,78vh); background:var(--card); border:1px solid var(--border); border-radius:24px; padding:28px 32px; box-shadow:var(--shadow); opacity:0; transform:translateY(12px) scale(.985); transition:opacity .35s ease, transform .35s ease; overflow:hidden; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; }
+    .slide.active{opacity:1; transform:translateY(0) scale(1);}    
+
+    /* Optional compact for dense slides */
+    .slide.compact h1{ font-size:28px }
+    .slide.compact .card h3{ font-size:16px }
+    .slide.compact .sub{ font-size:14px }
+    .slide.compact .bullets{ line-height:1.45 }
+
+    /* Default slide headings (non-title) */
+    .slide h1{ margin:0 0 16px; font-size:32px; font-weight:800; font-family:'Inter', sans-serif; color:var(--primary); line-height:1.2 }
+    .sub{ color:var(--text-dim); font-size:16px; margin:0 0 16px }
+
+    /* Title slide (scoped overrides) */
+    section.title-slide h1{ margin:0 0 20px; font-size:64px; font-weight:900; font-family:'Montserrat', sans-serif; color:var(--primary); line-height:1.1; animation:fadeInScale 1.2s ease forwards }
+    section.title-slide .sub{ color:var(--text-dim); font-size:24px; margin-bottom:24px; animation:fadeInUp 1.5s ease forwards }
+    section.title-slide .icon{ font-size:80px; color:var(--secondary); margin-bottom:20px; animation:rocket 2.2s ease forwards }
+    @keyframes fadeInScale{ 0%{opacity:0; transform:scale(.8)} 100%{opacity:1; transform:scale(1)} }
+    @keyframes fadeInUp{ 0%{opacity:0; transform:translateY(20px)} 100%{opacity:1; transform:translateY(0)} }
+    @keyframes rocket{ 0%{opacity:0; transform:translateY(20px) scale(.7) rotate(-12deg)} 40%{opacity:1; transform:translateY(-6px) scale(1) rotate(0)} 70%{transform:translateY(2px) rotate(2deg)} 100%{transform:translateY(0) rotate(0)} }
+
+    /* Layout helpers */
+    .row{ display:grid; gap:16px; width:100%; max-width:var(--maxRowW); margin:0 auto; align-items:stretch; }
+    .row.cols-2{ grid-template-columns:repeat(auto-fit, minmax(340px, 1fr)) }
+    .row.cols-3{ grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)) }
+    .row.cols-4{ grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)) }
+    .left{text-align:left}
+    .card{ background:#fff; border:1px solid var(--border); border-radius:16px; padding:14px; min-height:0; }
+    .card h3{ margin:0 0 8px; font-size:16px; color:var(--primary) }
+    .bullets{ margin:0; padding-left:18px; color:var(--text-dim); line-height:1.5 }
+    .pill{ display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px; border:1px solid var(--primary); background:var(--secondary); color:#111; font-weight:700 }
+
+    /* Chart containers: prevent resize loops by confining canvas to a sized wrapper */
+    .chart-box{ position:relative; width:100%; height:var(--chartH); contain:layout paint size style; }
+    .slide.compact .chart-box{ height:var(--chartH-compact); }
+    .chart-box > canvas{ position:absolute; inset:0; width:100% !important; height:100% !important; display:block; }
+
+    /* Value Chain */
+    .chain{ display:grid; grid-template-columns:repeat(6,1fr); gap:10px; margin-top:6px; max-width:var(--maxRowW); margin-inline:auto; }
+    .node{ position:relative; background:#fff; border:2px solid var(--primary); border-radius:14px; padding:12px 8px; text-align:center; color:var(--primary) }
+    .node:nth-child(2n){ border-color:var(--secondary); color:var(--secondary) }
+    .node .ico{ font-size:20px; display:block; margin-bottom:6px }
+    .node .lbl{ font-size:12px; font-weight:700 }
+    .arrow{ position:absolute; right:-8px; top:50%; width:14px; height:2px; background:var(--secondary) }
+    .arrow:after{ content:""; position:absolute; right:-3px; top:-3px; border:4px solid transparent; border-left-color:var(--secondary) }
+
+    /* Logos */
+    .logos{ display:flex; flex-wrap:wrap; gap:14px; align-items:center; justify-content:center; margin-top:8px }
+    .logos img{ height:40px; object-fit:contain; filter:drop-shadow(0 1px 2px rgba(0,0,0,.1)) }
+
+    /* Video / link cards */
+    .video{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px; border:2px dashed var(--secondary); border-radius:16px; background:#fff }
+    .video a{ display:inline-flex; align-items:center; gap:10px; text-decoration:none; color:var(--primary); font-weight:700 }
+    .video .play{ width:38px; height:38px; border-radius:50%; background:var(--primary); display:grid; place-items:center; color:#fff; font-weight:800 }
+
+    /* Controls */
+    .controls{ position:fixed; bottom:16px; left:0; right:0; display:flex; align-items:center; justify-content:center; gap:8px; z-index:11 }
+    .btn{ background:var(--primary); border:0; color:#fff; padding:10px 14px; border-radius:12px; cursor:pointer; font-weight:700 }
+    .btn.alt{ background:#fff; color:var(--primary); border:1px solid var(--primary) }
+    .btn:hover{ background:var(--secondary); color:#111 }
+    .progress{ position:absolute; bottom:0; left:0; height:3px; background:linear-gradient(90deg, var(--primary), var(--secondary)); transition:width .3s ease }
+
+    /* Editor panel */
+    #editor{ position:fixed; top:64px; right:0; width:min(460px, 92vw); height:calc(100vh - 64px); background:#fff; border-left:2px solid var(--secondary); box-shadow:-8px 0 24px rgba(0,0,0,.08); padding:18px 18px 100px; transform:translateX(100%); transition:transform .3s ease; overflow:auto; z-index:20 }
+    #editor.open{ transform:translateX(0) }
+    #editor h2{ margin:0 0 8px; font-size:20px; color:var(--primary) }
+    #editor .group{ margin:14px 0 18px }
+    #editor label{ display:block; font-size:12px; color:var(--text-dim); margin:6px 0 }
+    #editor input{ width:100%; padding:10px 12px; border:1px solid var(--border); border-radius:10px; font-size:14px }
+    #editor .row2{ display:grid; grid-template-columns:1fr 1fr; gap:10px }
+    #editor .save{ position:sticky; bottom:0; display:flex; gap:8px; padding:10px 0; background:#fff }
+    #editor .note{ font-size:12px; color:var(--text-dim); margin-top:6px }
+
+    @media print{ body{background:#fff} header, .controls{display:none} .deck{position:static;} .slide{position:static; opacity:1; transform:none; height:auto; page-break-after:always;} }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <header>
+    <img alt="BSJ Logo" src="https://www.bsj.org.jm/sites/default/files/BSJ%20Header%20%28Colour%20Adjusted%29_1.jpg" />
+    <div class="title">Seamless Execution – Leveraging the Power of the Standards Value Chain</div>
+    <div class="badge">Executive Director’s Retreat · FY 2026–2027</div>
+  </header>
+
+  <div class="deck" id="deck">
+    <!-- 0: Title -->
+    <section class="slide title-slide active" data-duration="60">
+      <i class="fa-solid fa-rocket icon" aria-hidden="true"></i>
+      <h1>Seamless Execution</h1>
+      <div class="sub">Leveraging the Power of the Standards Value Chain</div>
+      <div class="caption" style="position:absolute; bottom:24px; width:100%">Use ← → keys to navigate | Press “E” to edit data</div>
+      <div class="progress" id="progress"></div>
+    </section>
+
+    <!-- 1: What is Strategy -->
+    <section class="slide" data-duration="90">
+      <h1><i class="fa-solid fa-compass"></i> What is Strategy? + BSJ Strategic Framework</h1>
+      <div class="row cols-2 left">
+        <div class="card">
+          <h3>Strategy (short + sharp)</h3>
+          <ul class="bullets">
+            <li>A coherent set of choices that creates advantage and delivers measurable results.</li>
+            <li>It’s focus, tradeoffs, and capabilities — aligned to outcomes.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>BSJ Strategic Framework</h3>
+          <ul class="bullets">
+            <li>Vision & Mission</li>
+            <li>Strategic Objectives & Initiatives</li>
+            <li>Action Plans</li>
+            <li>Monitoring Framework</li>
+            <li>Validation / Verification</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2: Value Chain -->
+    <section class="slide" data-duration="90">
+      <h1><i class="fa-solid fa-diagram-project"></i> FY 2026–2027: Seamless Execution via the Standards Value Chain</h1>
+      <div class="card" style="width:100%">
+        <div class="chain">
+          <div class="node"><span class="ico"><i class="fa-solid fa-book-open"></i></span><span class="lbl">Standards Dev. & Promulgation</span><span class="arrow"></span></div>
+          <div class="node"><span class="ico"><i class="fa-solid fa-user-graduate"></i></span><span class="lbl">Training in Standards</span><span class="arrow"></span></div>
+          <div class="node"><span class="ico"><i class="fa-solid fa-cogs"></i></span><span class="lbl">Implementation</span><span class="arrow"></span></div>
+          <div class="node"><span class="ico"><i class="fa-solid fa-certificate"></i></span><span class="lbl">Certification</span><span class="arrow"></span></div>
+          <div class="node"><span class="ico"><i class="fa-solid fa-flask"></i></span><span class="lbl">Conformity Assessment</span><span class="arrow"></span></div>
+          <div class="node"><span class="ico"><i class="fa-solid fa-sync-alt"></i></span><span class="lbl">Surveillance & Recert.</span></div>
+        </div>
+      </div>
+      <div class="caption">Icons: Font Awesome Free (CDN).</div>
+    </section>
+
+    <!-- 3: Competitive Advantage -->
+    <section class="slide" data-duration="90">
+      <h1><i class="fa-solid fa-bolt"></i> Why BSJ’s Unique Competitive Advantage</h1>
+      <div class="row cols-3 left">
+        <div class="card"><h3><i class="fa-solid fa-scale-balanced"></i> Mandate & Legal Edge</h3><ul class="bullets"><li>Only Gov’t body in Jamaica legally selling standards.</li><li>Authority enables scale + pricing integrity.</li></ul></div>
+        <div class="card"><h3><i class="fa-solid fa-people-group"></i> Leadership in Standards</h3><ul class="bullets"><li>Membership & leadership across ISO, COPANT, CROSQ, IEC committees.</li><li>Early visibility on what’s next.</li></ul></div>
+        <div class="card"><h3><i class="fa-solid fa-certificate"></i> Certification Footprint</h3><ul class="bullets"><li>Largest regional body via NCBJ (operates in 6 countries – insert list once verified).</li></ul></div>
+        <div class="card"><h3><i class="fa-solid fa-flask"></i> Accredited Labs</h3><ul class="bullets"><li>10 accredited labs: 9 JANAAC (ISO/IEC 17025) + 1 DAKKS).</li></ul></div>
+        <div class="card"><h3><i class="fa-solid fa-clock"></i> Throughput & Utilisation</h3><ul class="bullets"><li>24/7 operations + equipment utilisation plans.</li></ul></div>
+        <div class="card"><h3><i class="fa-solid fa-user-tie"></i> Training & Talent</h3><ul class="bullets"><li>JTEC registration path → UCJ accreditation for courses.</li></ul></div>
+      </div>
+    </section>
+
+    <!-- 4: Standards Dev & Promulgation (charts + logos) -->
+    <section class="slide" data-duration="120">
+      <h1><i class="fa-solid fa-book-open"></i> Standards Development & Promulgation</h1>
+      <div class="row cols-2">
+        <div class="card"><h3>Revenue & Volume (animated)</h3><div class="chart-box"><canvas id="standardsChart"></canvas></div></div>
+        <div class="card left"><h3>Our Edge</h3>
+          <ul class="bullets">
+            <li>Leadership in ISO, COPANT, CROSQ, IEC committees (chair/secretariat roles in cases).</li>
+            <li>Exclusive legal authority to sell standards in Jamaica.</li>
+            <li>Foresight on upcoming standards; faster time‑to‑market.</li>
+          </ul>
+          <div class="pill" style="margin-top:8px">Target: +20% YoY</div>
+        </div>
+      </div>
+      <div class="row cols-2" style="margin-top:8px">
+        <div class="card"><h3>FY 2024–25: Standards Sold by Source (editable)</h3><div class="chart-box"><canvas id="standardsMix"></canvas></div></div>
+        <div class="card"><h3>Partners</h3>
+          <div class="logos">
+            <img src="https://www.bsj.org.jm/sites/default/files/partners/iso-logo.png" alt="ISO" />
+            <img src="https://website.crosq.org/wp-content/uploads/2018/07/Logo_COPANT_400x400.png" alt="COPANT" />
+            <img src="https://www.bsj.org.jm/sites/default/files/partners/CROSQ.jpg" alt="CROSQ" />
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/International_Electrotechnical_Commission_Logo.svg/1200px-International_Electrotechnical_Commission_Logo.svg.png" alt="IEC" />
+          </div>
+        </div>
+      </div>
+      <div class="caption">Replace placeholder figures with actuals in Edit Data panel (press “E”).</div>
+    </section>
+
+    <!-- 5: Training – Accreditation Pathway (compact, centred) -->
+    <section class="slide compact" data-duration="90">
+      <h1><i class="fa-solid fa-user-graduate"></i> Training – Accreditation Pathway & Unique Proposition</h1>
+      <div class="row cols-3">
+        <div class="card"><h3>📍 JTEC Assessment</h3><div class="sub">Completed</div></div>
+        <div class="card"><h3>🧭 JTEC Registration</h3><div class="sub">By Year‑End</div></div>
+        <div class="card"><h3>🎯 UCJ Accreditation</h3><div class="sub">Early 2026</div></div>
+      </div>
+      <div class="caption">This pathway is a unique value proposition for BSJ training offerings.</div>
+    </section>
+
+    <!-- 6: Training – Partners + Revenue chart (centred) -->
+    <section class="slide" data-duration="120">
+      <h1><i class="fa-solid fa-users"></i> Training – Global Partners & Growth</h1>
+      <div class="row cols-2">
+        <div class="card video">
+          <div>
+            <div class="pill">Partner</div>
+            <div style="margin-top:8px; font-weight:700">SQFI – Approved Regional Training Institute</div>
+          </div>
+          <a class="open-video" href="#" data-url="https://www.sqfi.com/"><span class="play">▶</span> SQFI – Play</a>
+        </div>
+        <div class="card video">
+          <div>
+            <div class="pill">Partner</div>
+            <div style="margin-top:8px; font-weight:700">PECB – Gold Training Partner</div>
+          </div>
+          <a class="open-video" href="#" data-url="https://pecb.com/"><span class="play">▶</span> PECB – Play</a>
+        </div>
+      </div>
+      <div class="logos" style="margin-top:8px">
+        <img src="https://www.countrymaid.net/wp-content/uploads/2021/09/SQF_Logo.webp" alt="SQFI" />
+        <img src="https://pecb.com/wp-content/uploads/2025/08/pecb-new-logo4.png" alt="PECB" />
+      </div>
+      <div class="card" style="margin-top:8px"><h3>Training Revenue Trajectory (animated)</h3><div class="chart-box"><canvas id="trainingChart"></canvas></div></div>
+      <div class="caption">Insert 24/25 actuals, 25/26 YTD + projection, and 26/27 (+20%).</div>
+    </section>
+
+    <!-- 7: Implementation (compact, centred) -->
+    <section class="slide compact" data-duration="90">
+      <h1><i class="fa-solid fa-cogs"></i> Implementation – Scaling Standards Across Industries</h1>
+      <div class="row cols-2">
+        <div class="card left"><h3>Competitive Advantage</h3>
+          <ul class="bullets">
+            <li>National/regional implementer network (QI/BSJ + NCBJ consultants).</li>
+            <li>Project examples: HEART, CB (replace with specifics).</li>
+          </ul>
+        </div>
+        <div class="card"><h3>Revenue Outlook (animated)</h3><div class="chart-box"><canvas id="implChart"></canvas></div></div>
+      </div>
+    </section>
+
+    <!-- 8: Certification (centred) -->
+    <section class="slide" data-duration="90">
+      <h1><i class="fa-solid fa-certificate"></i> Certification – Regional Leadership via NCBJ</h1>
+      <div class="row cols-2">
+        <div class="card left"><h3>Footprint & Edge</h3>
+          <ul class="bullets">
+            <li>Largest, most recognised regional certification body.</li>
+            <li>Operating in 6 countries (confirm list with Navenia).</li>
+            <li>Cross‑sell across the value chain.</li>
+          </ul>
+        </div>
+        <div class="card"><h3>Revenue Outlook (animated)</h3><div class="chart-box"><canvas id="certChart"></canvas></div></div>
+      </div>
+    </section>
+
+    <!-- 9: Conformity Assessment (centred) -->
+    <section class="slide" data-duration="120">
+      <h1><i class="fa-solid fa-flask"></i> Conformity Assessment – Monitoring & Laboratory Testing</h1>
+      <div class="row cols-2">
+        <div class="card left"><h3>Accreditation & Investment</h3>
+          <ul class="bullets">
+            <li>10 accredited labs (9 JANAAC ISO/IEC 17025; 1 DAKKS).</li>
+            <li><strong>JMD 320M</strong> invested in equipment over last 2 years <em>(validate with Procurement/Finance)</em>.</li>
+            <li>24/7 operations + expert technical staff.</li>
+          </ul>
+          <div class="logos" style="justify-content:flex-start">
+            <img src="https://www.janaac.gov.jm/wp-content/uploads/2020/04/JANAAC_Global_Accreditation_Logo__Final__-_May_15_2024-removebg-preview.png" alt="JANAAC" />
+            <img src="https://pbs.twimg.com/profile_images/477453019747864576/UpmQACbF_400x400.png" alt="DAKKS" />
+          </div>
+        </div>
+        <div class="card"><h3>Earnings Outlook (animated)</h3><div class="chart-box"><canvas id="labChart"></canvas></div></div>
+      </div>
+    </section>
+
+    <!-- 10: Surveillance & Recertification (centred) -->
+    <section class="slide" data-duration="90">
+      <h1><i class="fa-solid fa-sync-alt"></i> Surveillance Audits & Recertification</h1>
+      <div class="row cols-2">
+        <div class="card left"><h3>Leverage Installed Base</h3>
+          <ul class="bullets">
+            <li>Recurring revenue from existing certified clients.</li>
+            <li>Optimise scheduling and auditor utilisation to secure +20%.</li>
+          </ul>
+        </div>
+        <div class="card"><h3>Earnings Outlook (animated)</h3><div class="chart-box"><canvas id="survChart"></canvas></div></div>
+      </div>
+    </section>
+
+    <!-- 11: Marketing Whole Value Chain (centred) -->
+    <section class="slide" data-duration="90">
+      <h1><i class="fa-solid fa-bullhorn"></i> One BSJ, One Proposition – Market the Whole Value Chain</h1>
+      <div class="row cols-2 left">
+        <div class="card"><h3>From Pieces to Platform</h3>
+          <ul class="bullets">
+            <li>Stop marketing steps in isolation; present BSJ as the one‑stop Centre for Excellence.</li>
+            <li>Unify campaigns across the client lifecycle.</li>
+            <li>Metrics: pipeline, conversion, utilisation, cycle time, revenue/client.</li>
+          </ul>
+        </div>
+        <div class="card"><h3>Cumulative +20% Target</h3>
+          <div id="aggTotal" style="font-size:28px; font-weight:900; color:var(--primary)">—</div>
+          <div class="caption">Auto‑sums last column of each earnings/revenue chart.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 12: Roadmap / Action Plan (centred) -->
+    <section class="slide" data-duration="90">
+      <h1><i class="fa-solid fa-route"></i> Roadmap to Achieving +20% Across the Chain</h1>
+      <div class="row cols-3 left">
+        <div class="card"><h3>Strategy & Design</h3>
+          <ul class="bullets">
+            <li>Prioritise high‑yield standards and sectors.</li>
+            <li>Bundle value chain offerings (train → certify → test → surveil).</li>
+            <li>Price/discounts based on lifecycle value.</li>
+          </ul>
+        </div>
+        <div class="card"><h3>Execution</h3>
+          <ul class="bullets">
+            <li>24/7 scheduling + equipment utilisation.</li>
+            <li>Partner capacity for surge (consultants, auditors).</li>
+            <li>Digital booking and progress dashboards.</li>
+          </ul>
+        </div>
+        <div class="card"><h3>Monitoring & Verification</h3>
+          <ul class="bullets">
+            <li>Weekly KPI reviews (cycle time, utilisation, win‑rate).</li>
+            <li>Quarterly validation/verification checkpoints.</li>
+            <li>Quarterly PR/marketing impact audit.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 13: Discipline over Emotion (centred) -->
+    <section class="slide" data-duration="60">
+      <h1><i class="fa-solid fa-brain"></i> Discipline over Emotion</h1>
+      <div class="row">
+        <div class="card left" style="justify-self:center; max-width:840px">
+          <h3>Principle</h3>
+          <ul class="bullets">
+            <li>“Emotional reactions” aren’t a strategy; stay the course.</li>
+            <li>Win by understanding and leveraging our unique value propositions.</li>
+            <li>Execute the standardization value chain end‑to‑end.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 14: Closing -->
+    <section class="slide" data-duration="60">
+      <h1><i class="fa-solid fa-star"></i> The Vision – BSJ Centre for Excellence</h1>
+      <div class="sub">Excellence is a habit. We scale what we consistently execute.</div>
+      <div class="caption">Thank you.</div>
+    </section>
+  </div>
+
+  <!-- Editor Panel -->
+  <aside id="editor" aria-label="Edit Data Panel">
+    <h2><i class="fa-solid fa-pen-to-square"></i> Edit Data</h2>
+    <div class="note">Enter figures in <strong>JMD Millions</strong> where applicable. Your inputs update charts live.</div>
+
+    <div class="group">
+      <h3>Standards – Revenue (JMD M)</h3>
+      <div class="row2">
+        <label>FY 23/24 <input id="sRev0" type="number" step="0.1" value="10"></label>
+        <label>FY 24/25 <input id="sRev1" type="number" step="0.1" value="12"></label>
+        <label>FY 25/26 Proj. <input id="sRev2" type="number" step="0.1" value="14"></label>
+        <label>+20% Target <input id="sRev3" type="number" step="0.1" value="16.8"></label>
+      </div>
+    </div>
+    <div class="group">
+      <h3>Standards – # Sold</h3>
+      <div class="row2">
+        <label>FY 23/24 <input id="sUnit0" type="number" step="1" value="400"></label>
+        <label>FY 24/25 <input id="sUnit1" type="number" step="1" value="520"></label>
+        <label>FY 25/26 Proj. <input id="sUnit2" type="number" step="1" value="600"></label>
+        <label>+20% Target <input id="sUnit3" type="number" step="1" value="720"></label>
+      </div>
+    </div>
+    <div class="group">
+      <h3>Standards Mix – FY 24/25 (# Sold)</h3>
+      <div class="row2">
+        <label>ISO <input id="mixISO" type="number" step="1" value="180"></label>
+        <label>COPANT <input id="mixCOP" type="number" step="1" value="90"></label>
+        <label>CROSQ <input id="mixCRO" type="number" step="1" value="70"></label>
+        <label>IEC <input id="mixIEC" type="number" step="1" value="80"></label>
+        <label>JSS <input id="mixJSS" type="number" step="1" value="100"></label>
+      </div>
+      <div class="note">Replace with actuals by source (ISO, COPANT, CROSQ, IEC, Jamaican Standards).</div>
+    </div>
+
+    <div class="group">
+      <h3>Training – Revenue (JMD M)</h3>
+      <div class="row2">
+        <label>FY 24/25 <input id="tRev0" type="number" step="0.1" value="18"></label>
+        <label>FY 25/26 (5 mo.) <input id="tRev1" type="number" step="0.1" value="9"></label>
+        <label>FY 25/26 Proj. <input id="tRev2" type="number" step="0.1" value="22"></label>
+        <label>FY 26/27 (+20%) <input id="tRev3" type="number" step="0.1" value="26.4"></label>
+      </div>
+    </div>
+
+    <div class="group">
+      <h3>Implementation – Revenue (JMD M)</h3>
+      <div class="row2">
+        <label>FY 24/25 <input id="iRev0" type="number" step="0.1" value="8"></label>
+        <label>FY 25/26 Proj. <input id="iRev1" type="number" step="0.1" value="10"></label>
+        <label>FY 26/27 (+20%) <input id="iRev2" type="number" step="0.1" value="12"></label>
+      </div>
+    </div>
+
+    <div class="group">
+      <h3>Certification – Revenue (JMD M)</h3>
+      <div class="row2">
+        <label>FY 24/25 <input id="cRev0" type="number" step="0.1" value="25"></label>
+        <label>FY 25/26 Proj. <input id="cRev1" type="number" step="0.1" value="28"></label>
+        <label>FY 26/27 (+20%) <input id="cRev2" type="number" step="0.1" value="33.6"></label>
+      </div>
+    </div>
+
+    <div class="group">
+      <h3>Labs – Earnings (JMD M)</h3>
+      <div class="row2">
+        <label>FY 24/25 <input id="lRev0" type="number" step="0.1" value="40"></label>
+        <label>FY 25/26 Proj. <input id="lRev1" type="number" step="0.1" value="46"></label>
+        <label>FY 26/27 (+20%) <input id="lRev2" type="number" step="0.1" value="55.2"></label>
+      </div>
+    </div>
+
+    <div class="group">
+      <h3>Surveillance & Recert – Earnings (JMD M)</h3>
+      <div class="row2">
+        <label>FY 24/25 <input id="vRev0" type="number" step="0.1" value="12"></label>
+        <label>FY 25/26 Proj. <input id="vRev1" type="number" step="0.1" value="14"></label>
+        <label>FY 26/27 (+20%) <input id="vRev2" type="number" step="0.1" value="16.8"></label>
+      </div>
+    </div>
+
+    <div class="save">
+      <button class="btn" id="applyEdits"><i class="fa-solid fa-circle-check"></i> Apply</button>
+      <button class="btn alt" id="closeEdits"><i class="fa-solid fa-xmark"></i> Close</button>
+    </div>
+  </aside>
+
+  <div class="controls">
+    <button class="btn" id="prev">◀ Prev</button>
+    <button class="btn" id="next">Next ▶</button>
+    <button class="btn alt" id="toggleEditor"><i class="fa-solid fa-pen"></i> Edit Data</button>
+  </div>
+
+  <script>
+    // ---------- Navigation ----------
+    const slides = Array.from(document.querySelectorAll('.slide'));
+    let idx = 0; 
+    function activeProgress(){ return document.querySelector('.slide.active .progress'); }
+    function show(i){
+      slides.forEach(s=>s.classList.remove('active'));
+      idx = Math.max(0, Math.min(i, slides.length-1));
+      slides[idx].classList.add('active');
+      const pct = ((idx)/(slides.length-1))*100; const p = activeProgress(); if(p) p.style.width = pct+'%';
+      queueMicrotask(()=>{ Object.values(charts).forEach(ch=> ch && ch.resize()); });
+    }
+    document.getElementById('prev').onclick = ()=>show(idx-1);
+    document.getElementById('next').onclick = ()=>show(idx+1);
+    document.addEventListener('keydown', e=>{ if(e.key==='ArrowRight') show(idx+1); if(e.key==='ArrowLeft') show(idx-1); if(e.key.toLowerCase()==='e') toggleEditor(); });
+
+    // ---------- Video openers ----------
+    document.querySelectorAll('.open-video').forEach(a=>{ a.addEventListener('click', (e)=>{ e.preventDefault(); const url = a.getAttribute('data-url'); window.open(url, '_blank'); }); });
+
+    // ---------- Chart helpers ----------
+    const brandPrimary = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
+    const brandSecondary = getComputedStyle(document.documentElement).getPropertyValue('--secondary').trim();
+
+    // Apply global chart defaults to reduce resize thrash
+    Chart.defaults.maintainAspectRatio = false;
+    Chart.defaults.responsive = true;
+    Chart.defaults.resizeDelay = 200;
+
+    const state = {
+      standardsRevenue:[10,12,14,16.8],
+      standardsUnits:[400,520,600,720],
+      standardsMix:{ISO:180,COPANT:90,CROSQ:70,IEC:80,JSS:100},
+      trainingRevenue:[18,9,22,26.4],
+      implRevenue:[8,10,12],
+      certRevenue:[25,28,33.6],
+      labEarnings:[40,46,55.2],
+      survEarnings:[12,14,16.8]
+    };
+
+    const charts = {};
+    function makeBar(ctx, labels, datasets){
+      const tuned = datasets.map(d=>({
+        ...d,
+        maxBarThickness: 30,
+        categoryPercentage: 0.65,
+        barPercentage: 0.8,
+        borderRadius: 8
+      }));
+      return new Chart(ctx, { 
+        type:'bar', 
+        data:{ labels, datasets: tuned }, 
+        options:{ 
+          responsive:true, maintainAspectRatio:false, resizeDelay:200,
+          layout:{ padding:4 },
+          animation:{ duration:600, easing:'easeOutQuart'},
+          plugins:{ 
+            legend:{ position:'bottom', labels:{ color:'#333', font:{ size:11 } }},
+            tooltip:{ mode:'index', intersect:false }
+          },
+          scales:{ 
+            x:{ ticks:{ color:'#555', font:{ size:10 } }, grid:{ color:'#eee' }}, 
+            y:{ beginAtZero:true, ticks:{ color:'#555', font:{ size:10 } }, grid:{ color:'#eee' }}
+          }
+        }
+      });
+    }
+    function makeDoughnut(ctx, labels, data){
+      return new Chart(ctx, { 
+        type:'doughnut', 
+        data:{ labels, datasets:[{ data, cutout:'60%', backgroundColor:[brandPrimary, brandSecondary, '#8d6cab', '#ffd48a', '#c9c3cf'] }] }, 
+        options:{ responsive:true, maintainAspectRatio:false, resizeDelay:200, layout:{padding:4}, animation:{ duration:600 }, plugins:{ legend:{ position:'bottom', labels:{ color:'#333', font:{ size:11 }}} }}
+      });
+    }
+
+    function initCharts(){
+      const sCtx = document.getElementById('standardsChart');
+      if(sCtx){ charts.standards = makeBar(sCtx, ['FY 23/24','FY 24/25','FY 25/26 Proj.','+20% Target'], [ {label:'Revenue (JMD M)', data: state.standardsRevenue, backgroundColor: brandPrimary}, {label:'# Standards Sold', data: state.standardsUnits, backgroundColor: brandSecondary, yAxisID:'y'} ]); }
+      const mixCtx = document.getElementById('standardsMix');
+      if(mixCtx){ const labels = Object.keys(state.standardsMix); const data = Object.values(state.standardsMix); charts.standardsMix = makeDoughnut(mixCtx, labels, data); }
+      const tCtx = document.getElementById('trainingChart'); if(tCtx){ charts.training = makeBar(tCtx, ['FY 24/25','FY 25/26 (5 mo.)','FY 25/26 Proj.','FY 26/27 (+20%)'], [ {label:'Training Revenue (JMD M)', data: state.trainingRevenue, backgroundColor: brandPrimary} ]); }
+      const iCtx = document.getElementById('implChart'); if(iCtx){ charts.impl = makeBar(iCtx, ['FY 24/25','FY 25/26 Proj.','FY 26/27 (+20%)'], [ {label:'Implementation Revenue (JMD M)', data: state.implRevenue, backgroundColor: brandPrimary} ]); }
+      const cCtx = document.getElementById('certChart'); if(cCtx){ charts.cert = makeBar(cCtx, ['FY 24/25','FY 25/26 Proj.','FY 26/27 (+20%)'], [ {label:'Certification Revenue (JMD M)', data: state.certRevenue, backgroundColor: brandPrimary} ]); }
+      const lCtx = document.getElementById('labChart'); if(lCtx){ charts.lab = makeBar(lCtx, ['FY 24/25','FY 25/26 Proj.','FY 26/27 (+20%)'], [ {label:'Lab Earnings (JMD M)', data: state.labEarnings, backgroundColor: brandPrimary} ]); }
+      const vCtx = document.getElementById('survChart'); if(vCtx){ charts.surv = makeBar(vCtx, ['FY 24/25','FY 25/26 Proj.','FY 26/27 (+20%)'], [ {label:'Surveillance & Recert Earnings (JMD M)', data: state.survEarnings, backgroundColor: brandPrimary} ]); }
+      queueMicrotask(()=>{ Object.values(charts).forEach(ch=> ch && ch.resize()); });
+      updateAggregate();
+    }
+
+    // Editor wiring
+    function toggleEditor(){ document.getElementById('editor').classList.toggle('open'); }
+    document.getElementById('toggleEditor').onclick = toggleEditor;
+    document.getElementById('closeEdits').onclick = toggleEditor;
+    document.getElementById('applyEdits').onclick = ()=>{
+      state.standardsRevenue = [0,1,2,3].map(i=>parseFloat(document.getElementById('sRev'+i).value)||0);
+      state.standardsUnits   = [0,1,2,3].map(i=>parseFloat(document.getElementById('sUnit'+i).value)||0);
+      state.standardsMix = { ISO:+document.getElementById('mixISO').value||0, COPANT:+document.getElementById('mixCOP').value||0, CROSQ:+document.getElementById('mixCRO').value||0, IEC:+document.getElementById('mixIEC').value||0, JSS:+document.getElementById('mixJSS').value||0 };
+      state.trainingRevenue = [0,1,2,3].map(i=>parseFloat(document.getElementById('tRev'+i).value)||0);
+      state.implRevenue     = [0,1,2].map(i=>parseFloat(document.getElementById('iRev'+i).value)||0);
+      state.certRevenue     = [0,1,2].map(i=>parseFloat(document.getElementById('cRev'+i).value)||0);
+      state.labEarnings     = [0,1,2].map(i=>parseFloat(document.getElementById('lRev'+i).value)||0);
+      state.survEarnings    = [0,1,2].map(i=>parseFloat(document.getElementById('vRev'+i).value)||0);
+
+      if(charts.standards){ charts.standards.data.datasets[0].data = state.standardsRevenue; charts.standards.data.datasets[1].data = state.standardsUnits; charts.standards.update(); }
+      if(charts.standardsMix){ charts.standardsMix.data.labels = Object.keys(state.standardsMix); charts.standardsMix.data.datasets[0].data = Object.values(state.standardsMix); charts.standardsMix.update(); }
+      if(charts.training){ charts.training.data.datasets[0].data = state.trainingRevenue; charts.training.update(); }
+      if(charts.impl){ charts.impl.data.datasets[0].data = state.implRevenue; charts.impl.update(); }
+      if(charts.cert){ charts.cert.data.datasets[0].data = state.certRevenue; charts.cert.update(); }
+      if(charts.lab){ charts.lab.data.datasets[0].data = state.labEarnings; charts.lab.update(); }
+      if(charts.surv){ charts.surv.data.datasets[0].data = state.survEarnings; charts.surv.update(); }
+
+      updateAggregate();
+    };
+
+    function updateAggregate(){
+      const last = arr => arr && arr.length ? arr[arr.length-1] : 0;
+      const totalM = last(state.standardsRevenue) + last(state.trainingRevenue) + last(state.implRevenue) + last(state.certRevenue) + last(state.labEarnings) + last(state.survEarnings);
+      const txt = new Intl.NumberFormat('en-JM', { style:'currency', currency:'JMD', maximumFractionDigits:1 }).format(totalM*1_000_000);
+      const el = document.getElementById('aggTotal'); if(el) el.textContent = txt;
+    }
+
+    window.addEventListener('resize', ()=>{ Object.values(charts).forEach(ch=> ch && ch.resize()); });
+    window.addEventListener('load', ()=>{ initCharts(); });
+  </script>
+</body>
+</html>
