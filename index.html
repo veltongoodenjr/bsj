@@ -55,6 +55,7 @@
     /* Title slide (scoped overrides) */
     section.title-slide h1{ margin:0 0 20px; font-size:64px; font-weight:900; font-family:'Montserrat', sans-serif; color:var(--primary); line-height:1.1; animation:fadeInScale 1.2s ease forwards }
     section.title-slide .sub{ color:var(--text-dim); font-size:24px; margin-bottom:24px; animation:fadeInUp 1.5s ease forwards }
+    section.title-slide .sub:first-of-type{ font-weight:800; color:#2f3137; }
     section.title-slide .icon{ font-size:80px; color:var(--secondary); margin-bottom:20px; animation:rocket 2.2s ease forwards }
     @keyframes fadeInScale{ 0%{opacity:0; transform:scale(.8)} 100%{opacity:1; transform:scale(1)} }
     @keyframes fadeInUp{ 0%{opacity:0; transform:translateY(20px)} 100%{opacity:1; transform:translateY(0)} }
@@ -82,19 +83,19 @@
 
     /* Value Chain – circular cycle */
     .cycle-wrap{ display:flex; align-items:center; justify-content:center; width:100%; transform: translateY(-16px); }
-    .cycle{ position:relative; width:min(560px, 80vw); height:min(560px, 80vw); margin:4px auto 0; --step:51.42857deg; --radius: clamp(145px, 28vw, 200px); }
+    .cycle{ position:relative; width:min(560px, 80vw); height:min(560px, 80vw); margin:4px auto 0; --step:51.42857deg; --radius: clamp(145px, 28vw, 200px); --start:0; }
     .cycle .ring{ position:absolute; top:50%; left:50%; width:calc(var(--radius)*2); height:calc(var(--radius)*2); transform:translate(-50%, -50%); border-radius:50%; border:2px dashed var(--border); pointer-events:none; }
     .node, .node-c{ position:relative; background:#fff; border:2px solid var(--primary); border-radius:14px; padding:10px 10px; text-align:center; color:var(--text); box-shadow:0 2px 6px rgba(0,0,0,.04) }
     .node .ico, .node-c .ico{ font-size:20px; display:block; margin-bottom:6px; color:var(--primary) }
     .node .lbl, .node-c .lbl{ font-size:13.5px; font-weight:800; color:var(--text) }
     .node-c{ position:absolute; top:50%; left:50%; transform-origin:center; width:max(140px, 24%); }
-    .node-c.i0{ transform: translate(-50%, -50%) rotate(calc(var(--step)*0))  translate(var(--radius)) rotate(calc(var(--step)*0 * -1)); }
-    .node-c.i1{ transform: translate(-50%, -50%) rotate(calc(var(--step)*1))  translate(var(--radius)) rotate(calc(var(--step)*1 * -1)); }
-    .node-c.i2{ transform: translate(-50%, -50%) rotate(calc(var(--step)*2))  translate(var(--radius)) rotate(calc(var(--step)*2 * -1)); }
-    .node-c.i3{ transform: translate(-50%, -50%) rotate(calc(var(--step)*3))  translate(var(--radius)) rotate(calc(var(--step)*3 * -1)); }
-    .node-c.i4{ transform: translate(-50%, -50%) rotate(calc(var(--step)*4))  translate(var(--radius)) rotate(calc(var(--step)*4 * -1)); }
-    .node-c.i5{ transform: translate(-50%, -50%) rotate(calc(var(--step)*5))  translate(var(--radius)) rotate(calc(var(--step)*5 * -1)); }
-    .node-c.i6{ transform: translate(-50%, -50%) rotate(calc(var(--step)*6))  translate(var(--radius)) rotate(calc(var(--step)*6 * -1)); }
+    .node-c.i0{ transform: translate(-50%, -50%) rotate(calc(var(--step) * (0 + var(--start)))) translate(var(--radius)) rotate(calc(var(--step) * (0 + var(--start)) * -1)); }
+    .node-c.i1{ transform: translate(-50%, -50%) rotate(calc(var(--step) * (1 + var(--start)))) translate(var(--radius)) rotate(calc(var(--step) * (1 + var(--start)) * -1)); }
+    .node-c.i2{ transform: translate(-50%, -50%) rotate(calc(var(--step) * (2 + var(--start)))) translate(var(--radius)) rotate(calc(var(--step) * (2 + var(--start)) * -1)); }
+    .node-c.i3{ transform: translate(-50%, -50%) rotate(calc(var(--step) * (3 + var(--start)))) translate(var(--radius)) rotate(calc(var(--step) * (3 + var(--start)) * -1)); }
+    .node-c.i4{ transform: translate(-50%, -50%) rotate(calc(var(--step) * (4 + var(--start)))) translate(var(--radius)) rotate(calc(var(--step) * (4 + var(--start)) * -1)); }
+    .node-c.i5{ transform: translate(-50%, -50%) rotate(calc(var(--step) * (5 + var(--start)))) translate(var(--radius)) rotate(calc(var(--step) * (5 + var(--start)) * -1)); }
+    .node-c.i6{ transform: translate(-50%, -50%) rotate(calc(var(--step) * (6 + var(--start)))) translate(var(--radius)) rotate(calc(var(--step) * (6 + var(--start)) * -1)); }
 
     /* Logos */
     .logos{ display:flex; flex-wrap:wrap; gap:14px; align-items:center; justify-content:center; margin-top:8px }
@@ -160,23 +161,40 @@
     .unified-card{ max-width:560px; margin:0 auto; padding:12px 16px; text-align:center; }
     .unified-card .bullets{ list-style-position: inside; display:inline-block; text-align:left; margin:8px auto 4px; }
     @media (max-width: 860px){ .controls{ bottom:16px; } }
-  </style>
+  
+  /* Overrides & additions */
+  /* Correct cycle styles and campus background overlay */
+  .cycle{ position:relative; width:min(560px, 80vw); height:min(560px, 80vw); margin:4px auto 0; --step:51.42857deg; --radius: clamp(145px, 28vw, 200px); --start:0; }
+  .cycle .ring{ position:absolute; top:50%; left:50%; width:calc(var(--radius)*2); height:calc(var(--radius)*2); transform:translate(-50%, -50%); border-radius:50%; border:2px dashed var(--border); pointer-events:none; }
+  .node-c{ position:absolute; top:50%; left:50%; transform-origin:center; width:max(140px, 24%); }
+  .node-c.i0{ transform: translate(-50%, -50%) rotate(calc(var(--step) * (0 + var(--start)))) translate(var(--radius)) rotate(calc(var(--step) * (0 + var(--start)) * -1)); }
+  .node-c.i1{ transform: translate(-50%, -50%) rotate(calc(var(--step) * (1 + var(--start)))) translate(var(--radius)) rotate(calc(var(--step) * (1 + var(--start)) * -1)); }
+  .node-c.i2{ transform: translate(-50%, -50%) rotate(calc(var(--step) * (2 + var(--start)))) translate(var(--radius)) rotate(calc(var(--step) * (2 + var(--start)) * -1)); }
+  .node-c.i3{ transform: translate(-50%, -50%) rotate(calc(var(--step) * (3 + var(--start)))) translate(var(--radius)) rotate(calc(var(--step) * (3 + var(--start)) * -1)); }
+  .node-c.i4{ transform: translate(-50%, -50%) rotate(calc(var(--step) * (4 + var(--start)))) translate(var(--radius)) rotate(calc(var(--step) * (4 + var(--start)) * -1)); }
+  .node-c.i5{ transform: translate(-50%, -50%) rotate(calc(var(--step) * (5 + var(--start)))) translate(var(--radius)) rotate(calc(var(--step) * (5 + var(--start)) * -1)); }
+  .node-c.i6{ transform: translate(-50%, -50%) rotate(calc(var(--step) * (6 + var(--start)))) translate(var(--radius)) rotate(calc(var(--step) * (6 + var(--start)) * -1)); }
+  .bg-campus{ position:relative; background:#000 url('https://i.imgur.com/XIaqbTS.jpg') center/cover no-repeat !important; }
+  .bg-campus::before{ content:""; position:absolute; inset:0; background:rgba(0,0,0,.35); border-radius:24px; }
+  .bg-campus > *{ position:relative; color:#fff; text-shadow:0 2px 22px rgba(0,0,0,.55); }
+</style>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body>
   <header>
-    <img alt="BSJ Logo" src="https://www.bsj.org.jm/sites/default/files/BSJ%20Header%20%28Colour%20Adjusted%29_1.jpg" />
+    <img alt="MIIC Logo" src="https://i.imgur.com/NIC3swW.png" />
     <div class="title">Seamless Execution – Leveraging the Power of the Standards Value Chain</div>
-    <div class="badge">Executive Director’s Retreat · FY 2026–2027</div>
+    <div class="badge">Corporate Planning Retreat FY 2026–2029</div>
+    <img alt="BSJ Logo" src="https://www.bsj.org.jm/sites/default/files/BSJ%20Header%20%28Colour%20Adjusted%29_1.jpg" style="margin-left:12px"/>
   </header>
 
   <div class="deck" id="deck">
     <!-- 0: Title -->
     <section class="slide title-slide active" data-duration="60">
       <i class="fa-solid fa-rocket icon" aria-hidden="true"></i>
-      <h1>Seamless Execution</h1>
-      <div class="sub">Leveraging the Power of the Standards Value Chain</div>
-      
+      <h1>Excellence in Action</h1>
+      <div class="sub">Seamless Execution – Leveraging the Power of the Standards Value Chain</div>
+      <div class="sub">Corporate Planning Retreat FY 2026/27 – 2029/30</div>
       <div class="progress" id="progress"></div>
     </section>
 
@@ -185,7 +203,7 @@
       <h1><i class="fa-solid fa-compass"></i> What is Strategy? + BSJ Strategic Framework</h1>
       <div class="row cols-2 left">
         <div class="card">
-          <h3>Strategy (short + sharp)</h3>
+          <h3>Strategy</h3>
           <ul class="bullets">
             <li>Coherent choices that create advantage and deliver measurable results.</li>
             <li>Focused capabilities, clear tradeoffs, disciplined execution.</li>
@@ -204,20 +222,20 @@
       </div>
     </section>
 
-    <!-- 2: Value Chain – circular, split Surveillance & Recertification -->
+    <!-- 2: Value Chain – circular, numbered -->
     <section class="slide" data-duration="90">
-      <h1><i class="fa-solid fa-diagram-project"></i> FY 2026–2027: Seamless Execution via the Standards Value Chain</h1>
+      <h1><i class="fa-solid fa-diagram-project"></i> FY 2026–2029: Seamless Execution via the Standards Value Chain</h1>
       <div class="card" style="width:100%">
         <div class="cycle-wrap">
           <div class="cycle">
             <div class="ring" aria-hidden="true"></div>
-            <div class="node-c i0"><span class="ico"><i class="fa-solid fa-book-open"></i></span><span class="lbl">Standards Development & Promulgation</span></div>
-            <div class="node-c i1"><span class="ico"><i class="fa-solid fa-user-graduate"></i></span><span class="lbl">Training in Standards</span></div>
-            <div class="node-c i2"><span class="ico"><i class="fa-solid fa-cogs"></i></span><span class="lbl">Implementation</span></div>
-            <div class="node-c i3"><span class="ico"><i class="fa-solid fa-certificate"></i></span><span class="lbl">Certification</span></div>
-            <div class="node-c i4"><span class="ico"><i class="fa-solid fa-flask"></i></span><span class="lbl">Conformity Assessment</span></div>
-            <div class="node-c i5"><span class="ico"><i class="fa-solid fa-shield-halved"></i></span><span class="lbl">Surveillance Audits</span></div>
-            <div class="node-c i6"><span class="ico"><i class="fa-solid fa-arrows-rotate"></i></span><span class="lbl">Recertification</span></div>
+            <div class="node-c i0"><span class="ico"><i class="fa-solid fa-book-open"></i></span><span class="lbl">1. Standards Development &amp; Promulgation</span></div>
+            <div class="node-c i1"><span class="ico"><i class="fa-solid fa-user-graduate"></i></span><span class="lbl">2. Training in Standards</span></div>
+            <div class="node-c i2"><span class="ico"><i class="fa-solid fa-cogs"></i></span><span class="lbl">3. Implementation</span></div>
+            <div class="node-c i3"><span class="ico"><i class="fa-solid fa-certificate"></i></span><span class="lbl">4. Certification</span></div>
+            <div class="node-c i4"><span class="ico"><i class="fa-solid fa-flask"></i></span><span class="lbl">5. Conformity Assessment</span></div>
+            <div class="node-c i5"><span class="ico"><i class="fa-solid fa-shield-halved"></i></span><span class="lbl">6. Surveillance Audits</span></div>
+            <div class="node-c i6"><span class="ico"><i class="fa-solid fa-arrows-rotate"></i></span><span class="lbl">7. Recertification</span></div>
           </div>
         </div>
       </div>
@@ -229,16 +247,16 @@
       <div class="row cols-3 left">
         <div class="card"><h3><i class="fa-solid fa-scale-balanced"></i> Mandate & Legal Edge</h3><ul class="bullets"><li>Only government body in Jamaica authorised to sell standards.</li><li>Authority enables scale and pricing integrity.</li></ul></div>
         <div class="card"><h3><i class="fa-solid fa-people-group"></i> Leadership in Standards</h3><ul class="bullets"><li>Membership and leadership across ISO, COPANT, CROSQ, IEC committees.</li><li>Early visibility on upcoming standards.</li></ul></div>
-        <div class="card"><h3><i class="fa-solid fa-certificate"></i> Certification Footprint</h3><ul class="bullets"><li>NCBJ operates in: Barbados, Belize, Guyana, Jamaica, St Kitts & Nevis, Trinidad, Turks & Caicos.</li><li>Onboarded: Barbados & Trinidad (FY24/25); Turks & Caicos & St Kitts & Nevis (FY25/26).</li></ul></div>
-        <div class="card"><h3><i class="fa-solid fa-flask"></i> Accredited Laboratories</h3><ul class="bullets"><li>10 accredited laboratories: 9 JANAAC (ISO/IEC 17025) and 1 DAKKS.</li></ul></div>
+        <div class="card"><h3><i class="fa-solid fa-certificate"></i> Certification Footprint</h3><ul class="bullets"><li>NCBJ operates in 7 countries.</li><li>Onboarded 2 in FY 24/25; 2 YTD FY 25/26.</li></ul></div>
+        <div class="card"><h3><i class="fa-solid fa-flask"></i> Accredited Laboratories</h3><ul class="bullets"><li>10 ISO/IEC 17025 accredited laboratories: 9 JANAAC and 1 DAKKS.</li></ul></div>
         <div class="card"><h3><i class="fa-solid fa-user-tie"></i> Training, Talent & Certification of Persons</h3><ul class="bullets"><li>JTEC registration path and UCJ accreditation for courses.</li><li>Personnel certification embedded in offerings.</li></ul></div>
         <div class="card"><h3><i class="fa-solid fa-users-gear"></i> Certification Personnel</h3><ul class="bullets"><li>30 auditors and 10 technical experts YTD.</li><li>Projecting +4 (FY25/26) aligned to two industry codes.</li></ul></div>
       </div>
     </section>
 
-    <!-- 4: Standards Dev & Promulgation – Our Edge first -->
+    <!-- 4: Standards – Edge & Performance table -->
     <section class="slide" data-duration="90">
-      <h1><i class="fa-solid fa-book-open"></i> Standards Development & Promulgation</h1>
+      <h1><i class="fa-solid fa-book-open"></i> Standards Development &amp; Promulgation</h1>
       <div class="row cols-2 left">
         <div class="card"><h3>What is our edge?</h3>
           <ul class="bullets">
@@ -248,22 +266,25 @@
           </ul>
           <div class="pill" style="margin-top:8px">Target: +20% YoY</div>
         </div>
-        <div class="card"><h3>How have we performed?</h3>
-          <ul class="bullets">
-            <li>Revenue trend on next slide (JMD, M).</li>
-            <li>Operational plan focuses on priority sectors and rapid promulgation.</li>
-          </ul>
+        <div class="card"><h3>Standards Sales (units)</h3>
+          <table style="width:100%; border-collapse:collapse; margin-top:8px; font-size:14px">
+            <thead><tr><th style="text-align:left; padding:6px; border-bottom:1px solid #eee"></th><th style="padding:6px; border-bottom:1px solid #eee">FY 24/25</th><th style="padding:6px; border-bottom:1px solid #eee">FY 25/26 (5 mo.)</th><th style="padding:6px; border-bottom:1px solid #eee">FY 25/26 Proj.</th><th style="padding:6px; border-bottom:1px solid #eee">FY 26/27 (+20%)</th></tr></thead>
+            <tbody>
+              <tr><td style="text-align:left; padding:6px; border-bottom:1px solid #f0f0f0">Local &amp; Regional</td><td style="padding:6px; border-bottom:1px solid #f0f0f0">220</td><td style="padding:6px; border-bottom:1px solid #f0f0f0">102</td><td style="padding:6px; border-bottom:1px solid #f0f0f0">244</td><td style="padding:6px; border-bottom:1px solid #f0f0f0">292</td></tr>
+              <tr><td style="text-align:left; padding:6px">International</td><td style="padding:6px">43</td><td style="padding:6px">19</td><td style="padding:6px">45</td><td style="padding:6px">54</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </section>
 
-    <!-- 5: Standards – Performance (single tall chart) -->
+    <!-- 5: Standards – Performance chart -->
     <section class="slide" data-duration="120">
       <h1><i class="fa-solid fa-chart-column"></i> Standards – Performance (JMD, M)</h1>
       <div class="card" style="width:100%"><div class="chart-box tall"><canvas id="standardsChart"></canvas></div></div>
     </section>
 
-    <!-- 6: Training – Competitive Advantage & Partnerships (Video + PECB) -->
+    <!-- 6: Training – Accreditation Pathway & Partnerships -->
     <section class="slide" data-duration="110">
       <h1><i class="fa-solid fa-user-graduate"></i> Training – Accreditation Pathway & Competitive Advantage</h1>
       <div class="row cols-2 left">
@@ -273,24 +294,27 @@
             <li>Marketing of registration and accreditation as proof of quality.</li>
           </ul>
           <div class="logos" style="justify-content:flex-start; margin-top:6px">
-            <img src="https://www.sqfi.com/images/sqfilibraries/integrity-program-images/sqfi-logo-no-tagline.tmb-large-350-.png?Culture=en&sfvrsn=df6bd9b1_9" alt="SQFI" />
-            <img src="https://pecb.com/wp-content/uploads/2025/08/pecb-new-logo4.png" alt="PECB" />
+            <img src="https://i.imgur.com/liF20JH.png" alt="J-TEC" />
+            <img src="https://i.imgur.com/IQZl2mN.png" alt="UCJ" />
           </div>
         </div>
         <div class="card">
           <h3>Partnerships & Programmes</h3>
           <div class="embed" style="margin-bottom:12px">
-            <iframe src="https://player.vimeo.com/video/1119398610?context=Vimeo%5CController%5CApi%5CResources%5CVideoController.&h=4be9bd850f&s=3f422da4a1ff7a69e0de156394dcd914a7f58a0c_1758210717" width="640" height="564" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>
+            <iframe src="https://player.vimeo.com/video/1119398610?context=Vimeo%5CController%5CApi%5CResources%5CVideoController.&h=4be9bd850f&s=3f422da4a1ff7a69e0de156394dcd914a7f58a0c_1758210717" allow="autoplay; fullscreen" allowfullscreen></iframe>
           </div>
-          <div class="card" style="border-style:dashed">
-            <h3 style="margin-bottom:6px">PECB – Gold Training Partner</h3>
-            <div class="sub">Global professional certifications and training programmes delivered with BSJ quality standards.</div>
+          <div class="card" style="border-style:dashed; display:flex; align-items:center; justify-content:space-between; gap:12px">
+            <div>
+              <h3 style="margin-bottom:6px">PECB – Gold Training Partner</h3>
+              <div class="sub" style="text-align:left">Global professional certifications and training programmes delivered with BSJ quality standards.</div>
+            </div>
+            <img src="https://pecb.com/wp-content/uploads/2025/08/pecb-new-logo4.png" alt="PECB" style="height:42px"/>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- 7: Training – Revenue Trajectory (big chart) -->
+    <!-- 7: Training – Revenue Trajectory chart -->
     <section class="slide" data-duration="110">
       <h1><i class="fa-solid fa-chart-line"></i> Training – Revenue Trajectory (JMD, M)</h1>
       <div class="card" style="width:100%"><div class="chart-box tall"><canvas id="trainingChart"></canvas></div></div>
@@ -302,7 +326,7 @@
       <div class="row cols-2">
         <div class="card left"><h3>Capabilities</h3>
           <ul class="bullets">
-            <li>Largest pool of highly trained consultants (HEART/NSTA Trust, CB and BSJ networks).</li>
+            <li>Largest pool of highly trained experts (HEART/NSTA Trust, CB and BSJ networks).</li>
             <li>End‑to‑end support: gap‑assessments, implementation plans, coaching, verification.</li>
           </ul>
         </div>
@@ -315,16 +339,15 @@
       </div>
     </section>
 
-    <!-- 9: Certification – Regional Leadership via NCBJ (bigger font, bigger chart) -->
+    <!-- 9: Certification – Regional Leadership via NCBJ -->
     <section class="slide" data-duration="100">
       <h1><i class="fa-solid fa-certificate"></i> Certification – Regional Leadership via NCBJ</h1>
       <div class="row cols-split">
         <div class="card left bigtext"><h3>Footprint & Strategy</h3>
           <ul class="bullets">
             <li>Largest and most recognised regional certification body.</li>
-            <li>NCBJ operates in Barbados, Belize, Guyana, Jamaica, St Kitts & Nevis, Trinidad, and Turks & Caicos.</li>
-            <li>Onboarded Barbados & Trinidad (FY24/25); Turks & Caicos & St Kitts & Nevis (FY25/26).</li>
-            <li>Ministerial engagement: advocate ISO 9001 across GoJ MDAs with NCBJ as the certifying body.</li>
+            <li>NCBJ operates in 7 countries. Onboarded 2 in FY 24/25; 2 YTD FY 25/26.</li>
+            <li>Written to our Minister: advocate ISO 9001 across GoJ MDAs with NCBJ as the certifying body.</li>
             <li>Team: 30 auditors and 10 technical experts YTD; +4 projected FY25/26.</li>
           </ul>
         </div>
@@ -332,20 +355,40 @@
       </div>
     </section>
 
-    <!-- 10: Conformity Assessment – Monitoring & Laboratory Testing -->
+    <!-- 9B: Implementation – Performance -->
+    <section class="slide" data-duration="95">
+      <h1><i class="fa-solid fa-chart-simple"></i> Implementation – Performance</h1>
+      <div class="row cols-2 left">
+        <div class="card"><h3>Capacity</h3>
+          <ul class="bullets">
+            <li>Increased trainers from 18 in FY 23/24 to 22 YTD.</li>
+            <li>+1 projected FY 26/27.</li>
+          </ul>
+        </div>
+        <div class="card"><h3>Revenue</h3>
+          <ul class="bullets">
+            <li>QI: 1 Training Implementation Project in FY 23/24 – JMD 0.72M.</li>
+            <li>FY 24/25: 5 projects – JMD 12.9M; YTD: 2 projects – JMD 6.1M.</li>
+            <li>FY 26/27 projection: 7 projects – JMD 18.2M.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10: Laboratory Testing & Monitoring -->
     <section class="slide" data-duration="120">
-      <h1><i class="fa-solid fa-flask"></i> Conformity Assessment – Monitoring & Laboratory Testing</h1>
+      <h1><i class="fa-solid fa-flask"></i> Laboratory Testing &amp; Monitoring</h1>
       <div class="row cols-2">
         <div class="card left"><h3>Strength & Strategy</h3>
           <ul class="bullets">
             <li>Most advanced collection of testing equipment in the region.</li>
-            <li>10 accredited laboratories (9 JANAAC ISO/IEC 17025; 1 DAKKS).</li>
-            <li>JMD 320M invested in new equipment over the last two years.</li>
+            <li>10 ISO/IEC 17025 accredited laboratories (9 JANAAC; 1 DAKKS).</li>
+            <li>Approx. JMD 320M invested over the last four years.</li>
             <li>Turnaround: improve average from 21 days to an international benchmark of ~9 days.</li>
           </ul>
-          <div class="logos" style="justify-content:flex-start">
-            <img src="https://www.janaac.gov.jm/wp-content/uploads/2020/04/JANAAC_Global_Accreditation_Logo__Final__-_May_15_2024-removebg-preview.png" alt="JANAAC" />
-            <img src="https://pbs.twimg.com/profile_images/477453019747864576/UpmQACbF_400x400.png" alt="DAKKS" />
+          <div class="logos" style="justify-content:flex-end">
+            <img src="https://i.imgur.com/x2mXnew.png" alt="JANAAC" />
+            <img src="https://i.imgur.com/Xy86T3B.png" alt="DAKKS" />
           </div>
         </div>
         <div class="card"><h3>Earnings Outlook (JMD, M)</h3><div class="chart-box"><canvas id="labChart"></canvas></div></div>
@@ -354,7 +397,7 @@
 
     <!-- 11: Surveillance Audits & Recertification -->
     <section class="slide" data-duration="90">
-      <h1><i class="fa-solid fa-shield-halved"></i> Surveillance Audits & Recertification</h1>
+      <h1><i class="fa-solid fa-shield-halved"></i> Surveillance Audits &amp; Recertification</h1>
       <div class="row cols-2">
         <div class="card left"><h3>Retention Strategy</h3>
           <ul class="bullets">
@@ -364,14 +407,15 @@
         </div>
         <div class="card left"><h3>KPIs</h3>
           <ul class="bullets">
-            <li>Renewal rate, on‑time audit completion, and client satisfaction index.</li>
+            <li>New clients added and renewal rate.</li>
+            <li>On‑time audit completion and client satisfaction index.</li>
             <li>Revenue objective: +20% via expanded cycles and cross‑sell.</li>
           </ul>
         </div>
       </div>
     </section>
 
-    <!-- 12: One BSJ – Market the Whole Value Chain (add graph) -->
+    <!-- 12: One BSJ – Market the Whole Value Chain -->
     <section class="slide" data-duration="100">
       <h1><i class="fa-solid fa-bullhorn"></i> One BSJ, One Proposition – Market the Whole Value Chain</h1>
       <div class="row cols-2 left">
@@ -385,7 +429,7 @@
             <li>KPIs: pipeline velocity, conversion rate, utilisation, cycle time and NPS.</li>
           </ul>
         </div>
-        <div class="card"><h3>Cumulative +20% Target (JMD, M)</h3>
+        <div class="card"><h3>FY 25/26 YTD Proj. vs FY 26/27 Target (JMD, M)</h3>
           <div class="chart-box tall"><canvas id="aggChart"></canvas></div>
         </div>
       </div>
@@ -428,16 +472,27 @@
           <ul class="bullets">
             <li>Stay the course; strategy outperforms impulse.</li>
             <li>Leverage BSJ’s unique value propositions end‑to‑end.</li>
-            <li>Execute the standardization value chain with consistency.</li>
+            <li>Execute the standardisation value chain with excellence and consistency.</li>
           </ul>
         </div>
       </div>
     </section>
 
     <!-- 15: Closing -->
-    <section class="slide" data-duration="60">
-      <h1><i class="fa-solid fa-star"></i> The Vision – BSJ Centre for Excellence</h1>
-      <div class="sub">Excellence is a habit. We scale what we consistently execute.</div>
+    <section class="slide" data-duration="80">
+      <h1><i class="fa-solid fa-face-smile"></i> E.A.S.E. – Make It Easy to Work with BSJ</h1>
+      <div class="row cols-4 left">
+        <div class="card"><h3>Efficiency</h3><ul class="bullets"><li>Streamlined processes and digital-first journeys.</li></ul></div>
+        <div class="card"><h3>Accountability</h3><ul class="bullets"><li>Clear SLAs and transparent dashboards.</li></ul></div>
+        <div class="card"><h3>Safety</h3><ul class="bullets"><li>Best-practice compliance embedded across services.</li></ul></div>
+        <div class="card"><h3>Excellence</h3><ul class="bullets"><li>Service standards that build trust and retention.</li></ul></div>
+      </div>
+    </section>
+
+    <!-- Closing with campus image -->
+    <section class="slide bg-campus" data-duration="60">
+      <h1 style="color:#fff; text-shadow:0 2px 22px rgba(0,0,0,.55)"><i class="fa-solid fa-star"></i> The Vision – BSJ Centre for Excellence</h1>
+      <div class="sub" style="color:#fff; text-shadow:0 1px 12px rgba(0,0,0,.55)">Excellence is a habit. We scale what we consistently execute.</div>
     </section>
   </div>
 
@@ -451,165 +506,180 @@
   </div>
 
   <script>
-    // ---------- Mobile vh fix ----------
-    function setVH(){ document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`); }
-    window.addEventListener('resize', setVH); window.addEventListener('orientationchange', setVH); window.addEventListener('load', setVH);
+  // ---------- Mobile vh fix ----------
+  function setVH(){ document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`); }
+  window.addEventListener('resize', setVH); window.addEventListener('orientationchange', setVH); window.addEventListener('load', setVH);
 
-    // ---------- Slides & animated navigation ----------
-    const slides = Array.from(document.querySelectorAll('.slide'));
-    const pager = document.getElementById('pager');
-    const pagerWrap = document.getElementById('pagerWrap');
-    let idx = 0; let animating = false;
+  // ---------- Slides & animated navigation ----------
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const pager = document.getElementById('pager');
+  const pagerWrap = document.getElementById('pagerWrap');
+  let idx = slides.findIndex(s => s.classList.contains('active')); if(idx < 0) idx = 0;
+  let animating = false;
 
-    function activeProgress(){ return document.querySelector('.slide.active .progress'); }
+  function activeProgress(){ return document.querySelector('.slide.active .progress'); }
 
-    function show(i){
-      if(animating) return;
-      const target = Math.max(0, Math.min(i, slides.length-1));
-      if(target === idx) return;
-      const curr = slides[idx];
-      const next = slides[target];
-      animating = true;
+  function show(i){
+    if(animating) return;
+    const target = Math.max(0, Math.min(i, slides.length-1));
+    if(target === idx) return;
+    const curr = slides[idx];
+    const next = slides[target];
+    animating = true;
 
-      // prepare next
-      next.classList.add('active');
-      next.style.display = 'flex';
-      // animate current out
-      if(curr){ curr.classList.add('leaving'); }
-      // update idx immediately for pager highlight and progress
-      idx = target;
-      document.querySelectorAll('#pager .dot').forEach((d,j)=>{ d.classList.toggle('active', j===idx); });
-      const p = activeProgress(); if(p){ const pct = ((idx)/(slides.length-1))*100; p.style.width = pct+'%'; }
+    // prepare next
+    next.classList.add('active');
+    next.style.display = 'flex';
+    // animate current out
+    if(curr){ curr.classList.add('leaving'); }
+    // update idx immediately for pager highlight and progress
+    idx = target;
+    document.querySelectorAll('#pager .dot').forEach((d,j)=>{ d.classList.toggle('active', j===idx); });
+    const p = activeProgress(); if(p){ const pct = ((idx)/(slides.length-1))*100; p.style.width = pct+'%'; }
 
-      // after transition, hide leaving
-      const done = ()=>{
-        if(curr){ curr.classList.remove('active','leaving'); curr.style.display='none'; }
-        animating = false;
-        // Ensure charts resize on entry
-        queueMicrotask(()=>{ Object.values(charts).forEach(ch=> ch && ch.resize()); });
-      };
-      // fallback timer in case transitionend doesn't fire
-      setTimeout(done, 430);
-      if(curr){ curr.addEventListener('transitionend', done, { once:true }); }
-    }
-
-    document.getElementById('prev').onclick = ()=>show(idx-1);
-    document.getElementById('next').onclick = ()=>show(idx+1);
-    document.addEventListener('keydown', e=>{ if(e.key==='ArrowRight') show(idx+1); if(e.key==='ArrowLeft') show(idx-1); if(e.key.toLowerCase()==='p') togglePager(); });
-
-    // ---------- Pager (numeric carousel) with toggle ----------
-    function buildPager(){
-      pager.innerHTML = '';
-      slides.forEach((_,i)=>{
-        const b = document.createElement('button');
-        b.className = 'dot'+(i===idx?' active':'');
-        b.textContent = (i+1).toString();
-        b.title = 'Go to slide '+(i+1);
-        b.onclick = ()=>show(i);
-        pager.appendChild(b);
-      });
-    }
-
-    function togglePager(force){
-      const collapsed = pagerWrap.classList.contains('collapsed');
-      const next = (force!==undefined) ? !force : !collapsed; // if force==true => ensure expanded
-      if(next){ pagerWrap.classList.add('collapsed'); }
-      else{ pagerWrap.classList.remove('collapsed'); }
-    }
-
-    document.getElementById('pagerToggle').addEventListener('click', ()=> togglePager());
-
-    // ---------- Charts ----------
-    const brandPrimary = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
-    const brandSecondary = getComputedStyle(document.documentElement).getPropertyValue('--secondary').trim();
-
-    Chart.defaults.maintainAspectRatio = false;
-    Chart.defaults.responsive = true;
-    Chart.defaults.resizeDelay = 200;
-
-    // Input figures (JMD '000) converted to Millions
-    const dataFixedK = {
-      years: ['FY 23/24','FY 24/25','FY 25/26 (5 mo.)','FY 25/26 Proj.','FY 26/27 (+20%)'],
-      standards: [3462, 3322, 3120, 7488.00, 8985.60],
-      training:  [22322, 52233, 19790, 47496.00, 56995.20],
-      cert:      [35506, 61656, 26006, 62414.40, 74897.28],
-      labs:      [187551, 243066, 87919, 211005.60, 253206.72]
+    // after transition, hide leaving
+    const done = ()=>{
+      if(curr){ curr.classList.remove('active','leaving'); curr.style.display='none'; }
+      animating = false;
+      // Ensure charts resize on entry
+      queueMicrotask(()=>{ Object.values(charts).forEach(ch=> ch && ch.resize && ch.resize()); });
     };
-    const toMillions = arr => arr.map(v => v/1000);
-    const dataM = {
-      years: dataFixedK.years,
-      standards: toMillions(dataFixedK.standards),
-      training:  toMillions(dataFixedK.training),
-      cert:      toMillions(dataFixedK.cert),
-      labs:      toMillions(dataFixedK.labs)
-    };
+    // fallback timer in case transitionend doesn't fire
+    setTimeout(done, 430);
+    if(curr){ curr.addEventListener('transitionend', done, { once:true }); }
+  }
 
-    const charts = {};
-    const fmtM = n => `${Number(n).toLocaleString('en-US',{maximumFractionDigits:1})}M`;
+  document.getElementById('prev').onclick = ()=>show(idx-1);
+  document.getElementById('next').onclick = ()=>show(idx+1);
+  document.addEventListener('keydown', e=>{ if(e.key==='ArrowRight') show(idx+1); if(e.key==='ArrowLeft') show(idx-1); if(e.key.toLowerCase()==='p') togglePager(); });
 
-    function makeBar(ctx, labels, datasets){
-      const tuned = datasets.map(d=>({
-        ...d,
-        maxBarThickness: 32,
-        categoryPercentage: 0.6,
-        barPercentage: 0.8,
-        borderRadius: 8
-      }));
-      return new Chart(ctx, { 
-        type:'bar', 
-        data:{ labels, datasets: tuned }, 
-        options:{ 
-          responsive:true, maintainAspectRatio:false, resizeDelay:200,
-          layout:{ padding:4 },
-          animation:{ duration:600, easing:'easeOutQuart'},
-          plugins:{ 
-            legend:{ position:'bottom', labels:{ color:'#333', font:{ size:11 } }},
-            tooltip:{ mode:'index', intersect:false, callbacks:{ label: (ctx)=> `${ctx.dataset.label}: ${fmtM(ctx.parsed.y)}` } }
-          },
-          scales:{ 
-            x:{ ticks:{ color:'#555', font:{ size:10 } }, grid:{ color:'#eee' }}, 
-            y:{ beginAtZero:true, ticks:{ color:'#555', font:{ size:10 }, callback:(v)=> `${Number(v).toLocaleString('en-US',{maximumFractionDigits:1})}M` }, grid:{ color:'#eee' }}
+  // ---------- Pager (numeric carousel) with toggle ----------
+  function buildPager(){
+    pager.innerHTML = '';
+    slides.forEach((_,i)=>{
+      const b = document.createElement('button');
+      b.className = 'dot'+(i===idx?' active':'');
+      b.textContent = (i+1).toString();
+      b.title = 'Go to slide '+(i+1);
+      b.onclick = ()=>show(i);
+      pager.appendChild(b);
+    });
+  }
+
+  function togglePager(force){
+    const collapsed = pagerWrap.classList.contains('collapsed');
+    const next = (force!==undefined) ? !force : !collapsed; // if force==true => ensure expanded
+    if(next){ pagerWrap.classList.add('collapsed'); }
+    else{ pagerWrap.classList.remove('collapsed'); }
+  }
+
+  document.getElementById('pagerToggle').addEventListener('click', ()=> togglePager());
+
+  // ---------- Charts ----------
+  const brandPrimary = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
+  const brandSecondary = getComputedStyle(document.documentElement).getPropertyValue('--secondary').trim();
+  const darkGold = '#d18e2f';
+
+  Chart.defaults.maintainAspectRatio = false;
+  Chart.defaults.responsive = true;
+  Chart.defaults.resizeDelay = 200;
+
+  // Input figures (JMD '000) converted to Millions
+  const dataFixedK = {
+    years: ['FY 23/24','FY 24/25','FY 25/26 (5 mo.)','FY 25/26 Proj.','FY 26/27 (+20%)'],
+    standards: [3462, 3322, 3120, 7488.00, 8985.60],
+    training:  [22322, 52233, 19790, 47496.00, 56995.20],
+    cert:      [35506, 61656, 26006, 62414.40, 74897.28],
+    labs:      [187551, 243066, 87919, 211005.60, 253206.72]
+  };
+  const toMillions = arr => arr.map(v => v/1000);
+  const dataM = {
+    years: dataFixedK.years,
+    standards: toMillions(dataFixedK.standards),
+    training:  toMillions(dataFixedK.training),
+    cert:      toMillions(dataFixedK.cert),
+    labs:      toMillions(dataFixedK.labs)
+  };
+
+  const charts = {};
+
+  function makeBar(ctx, labels, datasets, stacked=true){
+    const tuned = datasets.map(d=>({
+      label: d.label,
+      data: d.data,
+      backgroundColor: d.bg,
+      borderColor: d.bg,
+      borderWidth: 0,
+      maxBarThickness: 34,
+      categoryPercentage: 0.62,
+      barPercentage: 0.86,
+      borderRadius: 8,
+      stack: d.stack || 'stack1'
+    }));
+    return new Chart(ctx, {
+      type: 'bar',
+      data: { labels, datasets: tuned },
+      options: {
+        responsive: true, maintainAspectRatio: false, resizeDelay: 200,
+        layout: { padding: 4 },
+        animation: { duration: 600, easing: 'easeOutQuart' },
+        plugins: {
+          legend: { position:'bottom', labels:{ color:'#333', font:{ size:11 }, filter:(item)=> !(item.text||'').includes('Base (=Proj.)') } },
+          tooltip: {
+            mode:'index', intersect:false,
+            callbacks: { label: (ctx)=> `${ctx.dataset.label}: ${Number(ctx.parsed.y).toLocaleString('en-US',{maximumFractionDigits:1})}M` }
           }
+        },
+        scales: {
+          x: { stacked, ticks:{ color:'#555', font:{ size:10 } }, grid:{ color:'#eee' } },
+          y: { stacked, beginAtZero:true,
+               ticks:{ color:'#555', font:{ size:10 }, callback:(v)=> `${Number(v).toLocaleString('en-US',{maximumFractionDigits:1})}M` },
+               grid:{ color:'#eee' } }
         }
-      });
-    }
-
-    function initCharts(){
-      const sCtx = document.getElementById('standardsChart');
-      if(sCtx){ charts.standards = makeBar(sCtx, dataM.years, [ {label:'Standards Revenue (JMD, M)', data: dataM.standards, backgroundColor: brandPrimary} ]); }
-      const tCtx = document.getElementById('trainingChart'); if(tCtx){ charts.training = makeBar(tCtx, dataM.years, [ {label:'Training Revenue (JMD, M)', data: dataM.training, backgroundColor: brandPrimary} ]); }
-      const cCtx = document.getElementById('certChart'); if(cCtx){ charts.cert = makeBar(cCtx, dataM.years, [ {label:'Certification Revenue (JMD, M)', data: dataM.cert, backgroundColor: brandPrimary} ]); }
-      const lCtx = document.getElementById('labChart'); if(lCtx){ charts.lab = makeBar(lCtx, dataM.years, [ {label:'Laboratories Earnings (JMD, M)', data: dataM.labs, backgroundColor: brandPrimary} ]); }
-      const aCtx = document.getElementById('aggChart');
-      if(aCtx){
-        const labels = ['Standards','Training','Certification','Laboratories'];
-        const proj   = [ dataM.standards[3], dataM.training[3], dataM.cert[3], dataM.labs[3] ];
-        const target = [ dataM.standards[4], dataM.training[4], dataM.cert[4], dataM.labs[4] ];
-        charts.agg = makeBar(aCtx, labels, [ {label:'FY 25/26 Proj. (JMD, M)', data: proj, backgroundColor: brandSecondary}, {label:'FY 26/27 Target +20% (JMD, M)', data: target, backgroundColor: brandPrimary} ]);
       }
+    });
+  }
 
-      queueMicrotask(()=>{ Object.values(charts).forEach(ch=> ch && ch.resize()); });
+  function initCharts(){
+    const years = dataM.years;
+    const I_PROJ = 3, I_NEXT = 4;
+    const prep = (series)=>{
+      return [
+        { label:'History', data: years.map((_,i)=> i < I_PROJ ? series[i] : 0), bg: brandPrimary, stack:'s' },
+        { label:'FY 25/26 Proj. (JMD, M)', data: years.map((_,i)=> i === I_PROJ ? series[I_PROJ] : 0), bg: brandSecondary, stack:'s' },
+        { label:'FY 26/27 Base (=Proj.)', data: years.map((_,i)=> i === I_NEXT ? series[I_PROJ] : 0), bg: brandSecondary, stack:'s' },
+        { label:'FY 26/27 +20% Increment', data: years.map((_,i)=> i === I_NEXT ? series[I_PROJ] * 0.20 : 0), bg: darkGold, stack:'s' }
+      ];
+    };
+
+    const sCtx = document.getElementById('standardsChart');
+    if(sCtx){ charts.standards = makeBar(sCtx, years, prep(dataM.standards)); }
+
+    const tCtx = document.getElementById('trainingChart');
+    if(tCtx){ charts.training = makeBar(tCtx, years, prep(dataM.training)); }
+
+    const cCtx = document.getElementById('certChart');
+    if(cCtx){ charts.cert = makeBar(cCtx, years, prep(dataM.cert)); }
+
+    const lCtx = document.getElementById('labChart');
+    if(lCtx){ charts.lab = makeBar(lCtx, years, prep(dataM.labs)); }
+
+    const aCtx = document.getElementById('aggChart');
+    if(aCtx){
+      const labels = ['Standards','Training','Certification','Laboratories'];
+      const proj   = [ dataM.standards[3], dataM.training[3], dataM.cert[3], dataM.labs[3] ];
+      const inc    = proj.map(v=> v*0.20);
+      charts.agg = makeBar(aCtx, labels, [
+        { label:'FY 25/26 Proj. (JMD, M)', data: proj, bg: brandSecondary, stack:'agg' },
+        { label:'FY 26/27 +20% Increment', data: inc,  bg: darkGold, stack:'agg' }
+      ], true);
     }
+  }
 
-    function buildPager(){
-      pager.innerHTML = '';
-      slides.forEach((_,i)=>{
-        const b = document.createElement('button');
-        b.className = 'dot'+(i===idx?' active':'');
-        b.textContent = (i+1).toString();
-        b.title = 'Go to slide '+(i+1);
-        b.onclick = ()=>show(i);
-        pager.appendChild(b);
-      });
-    }
+  function init(){ buildPager(); initCharts(); }
 
-    function init(){
-      buildPager();
-      initCharts();
-    }
-
-    window.addEventListener('resize', ()=>{ Object.values(charts).forEach(ch=> ch && ch.resize()); });
-    window.addEventListener('load', ()=>{ init(); });
-  </script>
+  window.addEventListener('resize', ()=>{ Object.values(charts).forEach(ch=> ch && ch.resize && ch.resize()); });
+  window.addEventListener('load', ()=>{ init(); });
+</script>
 </body>
 </html>
